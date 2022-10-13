@@ -1,7 +1,7 @@
 
 ## Instructions
 
-The master branch is now using .NET 5. with VS 2019  
+The master branch is using .NET 5. with VS 2019  
 
--  Download and Run the Code, no need to setup any thing.
+-  Download and Run the Code.
 -  SQL Lite Database is used.
