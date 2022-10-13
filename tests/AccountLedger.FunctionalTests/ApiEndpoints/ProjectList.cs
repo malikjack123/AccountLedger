@@ -25,5 +25,6 @@ namespace AccountLedger.FunctionalTests.ApiEndpoints
             Assert.Single(result.Projects);
             Assert.Contains(result.Projects, i => i.Name == SeedData.TestProject1.Name);
         }
+        
     }
 }

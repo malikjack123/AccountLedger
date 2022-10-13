@@ -71,14 +71,7 @@ namespace AccountLedger.Web.Api
         [HttpPost("/CreateAccount")]
         public async Task<IActionResult> Post([FromBody] LedgerAccountDTO request)
         {
-            var newAccount = new LedgerAccount(request.AccountNumber, request.Owner, request.Balance);
-            //var newAccount = new LedgerAccount
-            //{
-            //    AccountNumber = request.AccountNumber,
-            //    Owner = request.Owner,
-            //    Balance = request.Balance
-            //}; 
-
+            var newAccount = new LedgerAccount(request.AccountNumber, request.Owner, request.Balance); 
             var createdAccount = await _repository.AddAsync(newAccount);
             var result = new LedgerAccountDTO
             {

@@ -10,17 +10,12 @@ namespace AccountLedger.IntegrationTests.Data
         [Fact]
         public async Task AddsProjectAndSetsId()
         {
-            var testProjectName = "testProject";
             var repository = GetRepository();
-            var project = new Project(testProjectName);
+            var newAccount = new LedgerAccount("ACT:123456789", "Usama", 500);
+            var createdAccount = await repository.AddAsync(newAccount);
+            Assert.Equal(newAccount.AccountNumber, createdAccount.AccountNumber);
+            Assert.True(createdAccount?.Id > 0);
 
-            await repository.AddAsync(project);
-
-            var newProject = (await repository.ListAsync())
-                            .FirstOrDefault();
-
-            Assert.Equal(testProjectName, newProject.Name);
-            Assert.True(newProject?.Id > 0);
         }
     }
 }
