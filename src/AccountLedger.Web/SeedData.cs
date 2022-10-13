@@ -36,12 +36,11 @@ namespace AccountLedger.Web
                 {
                     return;   // DB has been seeded
                 }
-
                 PopulateTestData(dbContext);
-
-
+                PopulateAccounts(dbContext);
             }
         }
+
         public static void PopulateTestData(AppDbContext dbContext)
         {
             foreach (var item in dbContext.ToDoItems)
@@ -56,6 +55,24 @@ namespace AccountLedger.Web
             dbContext.Projects.Add(TestProject1);
 
             dbContext.SaveChanges();
+        }
+
+
+        public static void PopulateAccounts(AppDbContext dbContext)
+        { 
+            var item = new LedgerAccount
+            {
+                AccountNumber = "abc-scn-1123",
+                Owner = "Usama",
+                Balance = 2000
+            };
+
+            var itemTransactions = new AccountTransaction("Add", 20, item.AccountNumber);
+            item.MakeDeposit(itemTransactions);
+            dbContext.LedgerAccounts.Add(item);
+            dbContext.SaveChanges();
+
+     //       var dd = dbContext.LedgerAccounts.ToList();
         }
     }
 }

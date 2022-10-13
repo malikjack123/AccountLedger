@@ -25,6 +25,8 @@ namespace AccountLedger.Infrastructure.Data
 
         public DbSet<ToDoItem> ToDoItems { get; set; }
         public DbSet<Project> Projects { get; set; }
+        public DbSet<LedgerAccount> LedgerAccounts { get; set; }
+       public DbSet<AccountTransaction> AccountTransactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,8 +1,10 @@
 ﻿using AccountLedger.Core.ProjectAggregate;
 using AccountLedger.Core.ProjectAggregate.Specifications;
+using AccountLedger.Infrastructure.Data;
 using AccountLedger.SharedKernel.Interfaces;
 using AccountLedger.Web.ApiModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,9 +17,9 @@ namespace AccountLedger.Web.Api
     /// </summary>
     public class AccountController : BaseApiController
     {
-        private readonly IRepository<Account> _repository;
+        private readonly IRepository<LedgerAccount> _repository;
 
-        public AccountController(IRepository<Account> repository)
+        public AccountController(IRepository<LedgerAccount> repository)
         {
             _repository = repository;
         }
@@ -26,55 +28,90 @@ namespace AccountLedger.Web.Api
         [HttpGet]
         public async Task<IActionResult> List()
         {
-            var projectDTOs = (await _repository.ListAsync())
-                .Select(project => new AccountDTO
+            var reqDTOs = (await _repository.ListAsync())
+                .Select(request => new LedgerAccountDTO
                 {
-                    Id = project.Id,
-                    Name = project.AccountName
+                    Id = request.Id,
+                    Owner = request.Owner,
+                    AccountNumber = request.AccountNumber,
+                    Balance = request.AvailableBalance 
                 })
                 .ToList();
 
-            return Ok(projectDTOs);
+            return Ok(reqDTOs);
         }
 
         // GET: api/Account
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
-            //var projectSpec = new AccountByIdWithItem(id);
-            //var project = await _repository.GetBySpecAsync(projectSpec);
+            var projectSpec = new AccountByIdSpec(id);
+            var request = await _repository.GetBySpecAsync(projectSpec);
 
-            //var result = new ProjectDTO
-            //{
-            //    Id = project.Id,
-            //    Name = project.Name,
-            //    Items = new List<ToDoItemDTO>
-            //    (
-            //        project.Items.Select(i => ToDoItemDTO.FromToDoItem(i)).ToList()
-            //    )
-            //};
+            var result = new LedgerAccountDTO
+            {
+                Id = request.Id,
+                Owner = request.Owner,
+                AccountNumber = request.AccountNumber,
+                Balance = request.AvailableBalance,
+                Items = request.Items.Select(x => new AccountTransactionDTO()
+                {
+                    AccountNumber = request.AccountNumber,
+                    Amount = x.Amount,
+                    TransType = x.TransType.ToString(),
+                    Notes = x.Notes,
+                    TransDate = x.TransDate
+                }).ToList()
+            };
 
-            return Ok(5);
+            return Ok(result);
         }
 
-        // POST: api/Account
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CreateProjectDTO request)
+        // POST: api/CreateAccount
+        [HttpPost("/CreateAccount")]
+        public async Task<IActionResult> Post([FromBody] LedgerAccountDTO request)
         {
-            // var newProject = new Account(request.Name);
-
-            //var createdProject = await _repository.AddAsync(newProject);
-
-            //var result = new ProjectDTO
+            var newAccount = new LedgerAccount(request.AccountNumber, request.Owner, request.Balance);
+            //var newAccount = new LedgerAccount
             //{
-            //    Id = createdProject.Id,
-            //    Name = createdProject.Name
-            //};
-            //return Ok(result);
+            //    AccountNumber = request.AccountNumber,
+            //    Owner = request.Owner,
+            //    Balance = request.Balance
+            //}; 
 
-            return Ok();
+            var createdAccount = await _repository.AddAsync(newAccount);
+            var result = new LedgerAccountDTO
+            {
+                Id = createdAccount.Id,
+                Owner = createdAccount.Owner,
+                AccountNumber = createdAccount.AccountNumber,
+                Balance = createdAccount.Balance
+            };
+            return Ok(result);
         }
 
-       
+        // POST: api/MakeDeposit
+        [HttpPost("/MakeTransaction")]
+        public async Task<IActionResult> MakeTransaction([FromBody] AccountTransaction request)
+        {
+            var accountSpec = new AccountByNumberSpec(request.AccountNumber);
+            var account = await _repository.GetBySpecAsync(accountSpec);
+            if (account == null) return NotFound("No such Account exists");
+
+            var itemTransactions = new AccountTransaction(request.Notes, request.Amount, account.AccountNumber);
+            if (request.TransType == TransactionStatus.Credit)
+            {
+                account.MakeDeposit(itemTransactions);
+            }
+            else
+            {
+                account.MakeWithdrawal(itemTransactions);
+            }
+
+            await _repository.UpdateAsync(account);
+            await _repository.SaveChangesAsync();
+            return Ok("Success");
+        }
+
     }
 }

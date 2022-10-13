@@ -7,4 +7,9 @@ namespace AccountLedger.SharedKernel
     {
         public DateTime DateOccurred { get; protected set; } = DateTime.UtcNow;
     }
+
+    public abstract class BaseCreatedDate 
+    {
+        public DateTime DateOccurred { get; protected set; } = DateTime.UtcNow;
+    }
 }

@@ -1,0 +1,8 @@
+{
+ 
+  "accountNumber": "abc-scn-1123",
+  "transType": 0,
+  "amount": 20,
+  "transDate": "2022-10-13T09:40:17.661Z",
+  "notes": "ett" 
+}
