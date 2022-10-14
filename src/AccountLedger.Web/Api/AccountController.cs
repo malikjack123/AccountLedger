@@ -28,8 +28,11 @@ namespace AccountLedger.Web.Api
         [HttpGet]
         public async Task<IActionResult> List()
         {
-            var reqDTOs = (await _repository.ListAsync())
-                .Select(request => new LedgerAccountDTO
+            var projectSpec = new AllAccountsSpec();
+            var request = await _repository.ListAsync(projectSpec);
+
+            //  var reqDTOs = (await _repository.ListAsync())
+            var reqDTOs = request.Select(request => new LedgerAccountDTO
                 {
                     Id = request.Id,
                     Owner = request.Owner,
@@ -103,7 +106,7 @@ namespace AccountLedger.Web.Api
 
             await _repository.UpdateAsync(account);
             await _repository.SaveChangesAsync();
-            return Ok("Success");
+            return Ok(account);
         }
 
     }

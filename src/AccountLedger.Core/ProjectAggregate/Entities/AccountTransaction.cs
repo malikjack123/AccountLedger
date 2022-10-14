@@ -15,15 +15,15 @@ namespace AccountLedger.Core.ProjectAggregate
         public decimal Amount { get; set; }
         public DateTime TransDate { get; set; } = DateTime.UtcNow;
         public string Notes { get; set; }
-         
+
         private LedgerAccount _inverseAccount = new LedgerAccount();
         public LedgerAccount InverseAccount => _inverseAccount;
 
         private List<AccountTransaction> _items = new List<AccountTransaction>();
- 
+
         public AccountTransaction(string notes, decimal amount, string accountNumber)
         {
-            Notes = Guard.Against.NullOrEmpty(notes, nameof(notes));
+            Notes = notes;//  Guard.Against.NullOrEmpty(notes, nameof(notes));
             AccountNumber = Guard.Against.NullOrEmpty(accountNumber, nameof(accountNumber));
             Amount = Guard.Against.Negative(amount, nameof(amount));
         }

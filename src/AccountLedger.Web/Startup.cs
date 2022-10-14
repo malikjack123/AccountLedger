@@ -31,6 +31,7 @@ namespace AccountLedger.Web
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
             string connectionString = Configuration.GetConnectionString("SqliteConnection");  //Configuration.GetConnectionString("DefaultConnection");
 

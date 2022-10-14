@@ -3,6 +3,14 @@ using Ardalis.Specification;
 
 namespace AccountLedger.Core.ProjectAggregate.Specifications
 {
+    public class AllAccountsSpec : Specification<LedgerAccount>, ISingleResultSpecification
+    {
+        public AllAccountsSpec()
+        {
+            Query.Include(project => project.Items);
+
+        }
+    }
     public class AccountByIdSpec : Specification<LedgerAccount>, ISingleResultSpecification
     {
         public AccountByIdSpec(int accountId)
